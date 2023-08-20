@@ -17,7 +17,7 @@ class TimeReps extends StatelessWidget {
     return MaterialApp(
       title: 'TimeReps',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.white),
         useMaterial3: true,
       ),
       home: const MainTimer(title: 'TimeReps'),
