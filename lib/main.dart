@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import 'button.dart';
 
@@ -36,6 +37,7 @@ class MainTimer extends StatefulWidget {
 class _MainTimerState extends State<MainTimer> {
   static const maxSeconds = 60;
   int seconds = maxSeconds;
+  String inputSeconds = "";
   Timer? timer;
 
   void startTimer({bool reset = true}) {
@@ -64,7 +66,7 @@ class _MainTimerState extends State<MainTimer> {
   }
 
   void resetTimer() {
-    setState(() => seconds = maxSeconds);
+    setState(() => seconds = int.parse(inputSeconds));
   }
 
   @override
@@ -80,13 +82,47 @@ class _MainTimerState extends State<MainTimer> {
             colors: [Colors.grey.shade900, Colors.brown.shade900],
           )),
           child: Center(
-            child: Column(
+            child:
+                Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+              buildTimer(),
+              const SizedBox(height: 80),
+              Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  buildTimer(),
-                  const SizedBox(height: 80),
-                  buildButtons()
-                ]),
+                  SizedBox(
+                    width: 60,
+                    child: TextField(
+                      onChanged: (value) {
+                        setState(() {
+                          if (value != "") {
+                            int intValue = int.parse(value);
+                            if (intValue <= 0) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                      content: Text('Not a valid value')));
+                            } else {
+                              inputSeconds = value;
+                              resetTimer();
+                            }
+                          }
+                        });
+                      },
+                      cursorColor: Colors.white,
+                      style: const TextStyle(color: Colors.white, fontSize: 40),
+                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                      keyboardType: TextInputType.datetime,
+                      decoration:
+                          const InputDecoration(border: InputBorder.none),
+                    ),
+                  ),
+                  const Text('s',
+                      style: TextStyle(color: Colors.white30, fontSize: 30))
+                ],
+              ),
+              Padding(
+                  padding: const EdgeInsets.only(top: 40.0),
+                  child: buildButtons())
+            ]),
           ),
         ),
       ),
@@ -95,7 +131,7 @@ class _MainTimerState extends State<MainTimer> {
 
   Widget buildButtons() {
     final isRunning = timer == null ? false : timer!.isActive;
-    final isCompleted = seconds == 0 || seconds == maxSeconds;
+    final isCompleted = seconds == 0 || seconds == int.parse(inputSeconds);
 
     return isRunning || !isCompleted
         ? Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
@@ -116,7 +152,9 @@ class _MainTimerState extends State<MainTimer> {
         : Button(
             text: 'Start Timer',
             onClicked: () {
-              startTimer();
+              if (inputSeconds != "" && int.parse(inputSeconds) > 0) {
+                startTimer();
+              }
             },
             color: Colors.brown,
             backgroundColor: Colors.white);
@@ -127,7 +165,7 @@ class _MainTimerState extends State<MainTimer> {
         height: 200,
         child: Stack(fit: StackFit.expand, children: [
           CircularProgressIndicator(
-            value: seconds / maxSeconds,
+            value: seconds / int.parse(inputSeconds),
             strokeWidth: 12,
             valueColor: const AlwaysStoppedAnimation(Colors.white),
             backgroundColor: Colors.greenAccent,
